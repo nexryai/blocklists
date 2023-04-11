@@ -38,12 +38,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create and push tag
+        run: |
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
       - name: Create release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: Release ${{ env.TAG_NAME }}
-          body: Release ${{ env.TAG_NAME }}
+          name: Blocklists ${{ env.TAG_NAME }}
+          body: Blocklists ${{ env.TAG_NAME }}
           draft: false
           prerelease: false
         env:
