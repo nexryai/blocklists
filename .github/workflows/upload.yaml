@@ -1,0 +1,77 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl
+
+      - name: Build binary
+        run: |
+          cd domains
+          bash mkblocklist.sh
+          mv new.yml block_domains.yml
+          cd ..
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: $(date +%s)
+          draft: false
+          prerelease: false
+
+      - name: Upload block_domains
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domains/block_domains.yml
+          asset_name: block_domains.yml
+          asset_content_type: text/yaml
+      
+      - name: Upload untrusted_domains
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./domains/untrusted_domains.yml
+          asset_name: untrusted_domains.yml
+          asset_content_type: text/yaml
+      
+      - name: Upload block_words
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./words/block_words.yml
+          asset_name: block_words.yml
+          asset_content_type: text/yaml
+        
+      - name: Upload sensitive_words
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./words/sensitive_words.yml
+          asset_name: sensitive_words.yml
+          asset_content_type: text/yaml
