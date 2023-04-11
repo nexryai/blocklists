@@ -18,12 +18,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl
 
-      - name: Build binary
+      - name: Build
         run: |
           cd domains
           bash mkblocklist.sh
           mv new.yml block_domains.yml
           cd ..
+
+      - name: Generate tag name
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            const hours = ('0' + date.getHours()).slice(-2);
+            const minutes = ('0' + date.getMinutes()).slice(-2);
+            const tag = `${year}.${month}.${day}-${hours}${minutes}`;
+            console.log(tag);
+            github.context.payload.tag_name = tag;
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Create release
         id: create_release
@@ -31,8 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha | slice(0, 16) }}
-          release_name: ${{ github.sha | slice(0, 16) }}
+          tag_name: ${{ github.context.payload.tag_name }}
+          release_name: ${{ github.context.payload.tag_name }}
           draft: false
           prerelease: false
 
