@@ -37,7 +37,7 @@ jobs:
             const minutes = ('0' + date.getMinutes()).slice(-2);
             const tag = `${year}.${month}.${day}-${hours}${minutes}`;
             console.log(tag);
-            github.context.payload.tag_name = tag;
+            process.env.TAG_NAME = tag;
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -48,8 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.context.payload.tag_name }}
-          release_name: ${{ github.context.payload.tag_name }}
+          tag_name: ${{ env.TAG_NAME }}
+          release_name: $${{ env.TAG_NAME }}
           draft: false
           prerelease: false
 
