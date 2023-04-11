@@ -29,29 +29,24 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            const date = new Date();
-            const year = date.getFullYear();
-            const month = ('0' + (date.getMonth() + 1)).slice(-2);
-            const day = ('0' + date.getDate()).slice(-2);
-            const hours = ('0' + date.getHours()).slice(-2);
-            const minutes = ('0' + date.getMinutes()).slice(-2);
-            const tag = `${year}.${month}.${day}-${hours}${minutes}`;
-            console.log(tag);
-            process.env.TAG_NAME = tag;
+            const { v4: uuidv4 } = require('uuid');
+            const uuid = uuidv4();
+            console.log(uuid);
+            process.env.TAG_NAME = uuid;
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Create release
-        id: create_release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG_NAME }}
-          release_name: $${{ env.TAG_NAME }}
+          name: Release ${{ env.TAG_NAME }}
+          body: Release ${{ env.TAG_NAME }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload block_domains
         uses: actions/upload-release-asset@v1
