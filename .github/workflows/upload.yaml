@@ -41,7 +41,7 @@ jobs:
       - name: Create and push tag
         run: |
           git tag ${{ env.TAG_NAME }}
-          git push origin ${{ env.TAG_NAME }}:main
+          git push origin main:${{ env.TAG_NAME }}
 
       - name: Create release
         uses: actions/create-release@v1
